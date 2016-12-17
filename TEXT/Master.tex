@@ -10,15 +10,25 @@
 
 %% 表紙
 \title{FreeBSD Kernelデバッグのための小冊子}
-\author{feynoobs}
+\author{feynoobs \thanks{\protect\url{https://twitter.com/phoenixwright_j}}}
+
 \begin{document}
 
 \maketitle
 
+\tableofcontents
+
+\newpage
+
 \section{初めに}
 本冊子では仮想マシン2台を使用したC言語によるFreeBSD Kernelのデバッグ方法を示す。
 
+マシンのBootには従来のBIOS方式と新しいUEFI方式があるが、
+近年のマシンはほとんどUEFIを採用しているため、
+本冊子ではUEFIにてBootする。
+
 なお、UEFIによるBootプログラムとKernelのごく先頭部分はデバッグできない。
+これはBIOSを使用しても同様である。
 UEFIのデバッグはOSDev~\cite{OSDev}を参照されたい。
 Kernel先頭部分は机上によるデバッグを行うのみと思われる。
 
