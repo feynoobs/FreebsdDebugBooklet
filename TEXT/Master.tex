@@ -5,8 +5,6 @@
 \usepackage[]{graphicx}
 \usepackage[dvipdfmx]{color}
 \usepackage{amssymb}
-\usepackage[]{multicol}
-\usepackage{url}
 \西暦
 
 %% 表紙
@@ -19,22 +17,22 @@
 \begin{abstract}
 本冊子では仮想マシン2台を使用したC言語によるFreeBSDのKernelのデバッグ方法を示す。
 なお、Bootのごく先頭部分はKernelデバッグできない。
-
 \end{abstract}
-\begin{multicols}{2}
 
 \section{環境準備}
 ホストのPCにUbuntu15.10を使用した場合の環境構築手順を示す。
 \ref{tb:FreeBSD:_ENV}に示すのアプリケーションがインストール
 されていることを前提で話をすすめる。
+
+なおQEMUは``apt-get''コマンドにて``qemu-system-x86''をインストールすると良い。
 \begin{table*}[htp]
 	\caption{必要なアプリケーション}
 	\label{tb:FreeBSD:_ENV}
 	\begin{center}
-		\begin{tabular}{l|p{10cm}}										\hline
-			アプリケーション	&	概要							\\	\hline
-			QEMU				&	x64エミュレータ				\\	\hline	\hline
-			OVMF.fd				&	UEFIイメージ					\\	\hline	\hline
+		\begin{tabular}{|l|p{10cm}|}									\hline
+			アプリケーション	&	概要							\\	\hline	\hline
+			QEMU				&	x64エミュレータ				\\	\hline
+			OVMF.fd				&	UEFIイメージ					\\	\hline
 			FreeBSDイメージ		&	AMD64・UEFI対応のFreeBSDのISO	\\	\hline
 		\end{tabular}
 	\end{center}
@@ -64,7 +62,6 @@ $ qemu-system-x86_64 -enable-kvm -bios OVMF.fd -hda GUEST1  -cdrom FreeBSD-10.2-
 	\caption{FreeBSDをインストールするためのQEMU起動}
 	\label{fig:FreeBSD_QEMU}
 \end{figure*}
-
 QEMUを起動してしばらく経つと\ref{fig:FreeBSD_TOP}の画面になるので
 ``$<$Install$>$''を選択する。
 \begin{figure*}[htbp]
@@ -76,7 +73,7 @@ QEMUを起動してしばらく経つと\ref{fig:FreeBSD_TOP}の画面になる�
 \end{figure*}
 
 \ref{fig:FreeBSD_KEY}のキーマップ選択画面はPCのキー配置にしたがって選択する。
-日本語キーボードの場合は"Japanses 106"で良いであろう。
+日本語キーボードの場合は``Japanses 106''で良いであろう。
 選択したあと``$>>>$Continue with jp.106.kdb keymap''を選択する。
 \begin{figure*}[htbp]
 	\begin{center}
@@ -96,7 +93,7 @@ QEMUを起動してしばらく経つと\ref{fig:FreeBSD_TOP}の画面になる�
     \label{fig:FreeBSD_HOST}
 \end{figure*}
 
-\ref{fig:FreeBSD_INST_SELECT}にて"lib32"と"src"にチェックを入れて確定する。
+\ref{fig:FreeBSD_INST_SELECT}にて``lib32''と``src''にチェックを入れて確定する。
 なお、portsはユーザーとしてFreeBSDを使うときは必須であるが、デバッガとして使う場合は任意である。
 \begin{figure*}[htbp]
 	\begin{center}
@@ -115,9 +112,8 @@ QEMUを起動してしばらく経つと\ref{fig:FreeBSD_TOP}の画面になる�
     \caption{FreeBSDで使用するファイルシステム}
     \label{fig:FreeBSD_FS}
 \end{figure*}
-
 この仮想マシンにはFreeBSD以外のOSはインストールしないため
-\ref{fig:FreeBSD_Q}``$<$Entire Dsik$>$''でよい。
+\ref{fig:FreeBSD_Q}``$<$Entire Dsik$>$''を選択する。
 \begin{figure*}[htbp]
 	\begin{center}
     	\includegraphics[width=10cm]{./IMG/FreeBSD_ENTRY.png}
@@ -164,7 +160,7 @@ QEMUを起動してしばらく経つと\ref{fig:FreeBSD_TOP}の画面になる�
     \label{fig:FreeBSD_PASS}
 \end{figure*}
 
-\ref{fig:FreeBSD_NIC}のようなNIC設定の画面が表示される。
+続いて\ref{fig:FreeBSD_NIC}のようなNIC設定の画面が表示される。
 筆者は設定なかったので``$<$Cancel$>$''を選択した。
 ネットワークの設定は割愛する。
 \begin{figure*}[htbp]
@@ -175,7 +171,7 @@ QEMUを起動してしばらく経つと\ref{fig:FreeBSD_TOP}の画面になる�
     \label{fig:FreeBSD_NIC}
 \end{figure*}
 
-タイムゾーンの設定を行います。
+次にタイムゾーンの設定を行う。
 \ref{fig:FreeBSD_TIM}にて``$<$No$>$''を選択後、
 \ref{fig:FreeBSD_TIM2}の国を選ぶリストで``18 Japan''を選択する。
 \begin{figure*}[htbp]
@@ -246,7 +242,7 @@ QEMUを起動してしばらく経つと\ref{fig:FreeBSD_TOP}の画面になる�
 \subsection{Kernelの再構築のためのファイル編集}
 \ref{sec:FreeBSD_inst}でインストールしたFreeBSDをデバッグできるようにKernelを再構築する。
 
-\ref{fig:FreeBSD_boot_com}のコマンドでQEMUを起動してください。
+\ref{fig:FreeBSD_boot_com}のコマンドでQEMUを起動する。
 \begin{figure*}[htbp]
 	\begin{center}
 		\begin{lstlisting}[basicstyle=\ttfamily\footnotesize, frame=single, breaklines=true]
@@ -266,9 +262,9 @@ $ qemu-system-x86_64 -enable-kvm -bios OVMF.fd -hda GUEST1 -m 1024M -smp 2
     \label{fig:FreeBSD_BOOT}
 \end{figure*}
 
-ログイン後３つのファイルを編集します。
-なおFreeBSDインストール完了時には``vi''と``ee''の２つのエディタが組み込まれています。
-筆者のように``vi''が苦手な者は、``ee''が直感的に使いやすいと思う。
+ログイン後３つのファイルを編集する。
+なおFreeBSDインストール完了時には``vi''と``ee''の２つのエディタが組み込まれている。
+筆者のように``vi''が苦手な者は、``ee''が直感的に使いやすいとであろう。
 \begin{itemize}
     \item /boot/device.hints
     \item /sys/amd64/conf/GENERIC.hints
@@ -350,7 +346,7 @@ GUEST1をGUEST2とORGにコピーしたとして話を進める。
 なお、ORGはストレージイメージが壊れた時のバックアップ用である。
 実際、FreeBSDをシャットダウンせずにQEMUを終了すると、次回起動できなくなる場合があった。
 
-次に仮想マシン２つをつなぐためのパイプの作成を行う。
+次に仮想マシン2つをつなぐパイプの作成を行うため
 \ref{fig:FreeBSD_pipe}を実行する。
 \begin{figure*}[htbp]
 	\begin{center}
@@ -365,7 +361,7 @@ $ ln -s /tmp/fifoA.in /tmp/fifoB.out
 \end{figure*}
 
 \subsection{GUEST1設定}
-次に\ref{fig:FreeBSD_guest1}のようにしてGUEST1を起動する。
+\ref{fig:FreeBSD_guest1}のようにしてGUEST1を起動する。
 \begin{figure*}[htbp]
 	\begin{center}
 		\begin{lstlisting}[basicstyle=\ttfamily\footnotesize, frame=single, breaklines=true]
@@ -410,8 +406,8 @@ $ qemu-system-x86_64 -enable-kvm -hda GUEST2 -bios OVMF.fd -m 1024M -smp 2 -seri
 	\label{fig:FreeBSD_guest2}
 \end{figure*}
 
-こちらは通常に起動させてる。
-そうして\ref{sec:Kern_build}でKernelをコンパイルしたパス(``/sys/amd64/compile/GENERIC'')に移動します。
+こちらは通常に起動させる。
+そうして\ref{sec:Kern_build}でKernelをコンパイルしたパス(``/sys/amd64/compile/GENERIC'')に移動する。
 このパスで\ref{fig:FreeBSD_gdb}のように入力する。
 \begin{figure*}[htbp]
 	\begin{center}
@@ -438,9 +434,9 @@ $ (kgdb) target remote /dev/cuau0
 \section{Kernelデバッグのテクニック}
 \subsection{CPUレジスタを確認する}
 Kernelデバッグ時にCPUレジスタの中身を確認したくなるシーンは多々ありるが、
-KGDBではすべてのレジスタは見れません。
+KGDBではすべてのレジスタは見れない。
 そこでQEMUから見る方法を紹介する。
-\ref{fig:FreeBSD_guest1}を\ref{fig:FreeBSD_guest2}に書き換えること。
+\ref{fig:FreeBSD_guest1}を\ref{fig:FreeBSD_guest1_reg}に書き換えること。
 \begin{figure*}[htbp]
 	\begin{center}
 		\begin{lstlisting}[basicstyle=\ttfamily\footnotesize, frame=single, breaklines=true]
@@ -448,7 +444,7 @@ $ qemu-system-x86_64 -enable-kvm -hda GUEST1 -bios OVMF.fd -m 1024M -smp 2 -seri
 		\end{lstlisting}
 	\end{center}
 	\caption{GUEST1起動2}
-	\label{fig:FreeBSD_guest2}
+	\label{fig:FreeBSD_guest1_reg}
 \end{figure*}
 そして、QEMUを起動したターミナルから\ref{fig:QEMU_reg_chk}と入力する。
 \begin{figure*}[htbp]
@@ -469,8 +465,5 @@ $ qemu-system-x86_64 -enable-kvm -hda GUEST1 -bios OVMF.fd -m 1024M -smp 2 -seri
     \caption{レジスタ一覧の例}
     \label{fig:QEMU_REG_INFO}
 \end{figure*}
-
-\newpage
-\end{multicols}
 
 \end{document}
