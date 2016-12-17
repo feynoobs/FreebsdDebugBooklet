@@ -344,6 +344,131 @@ $ make cleandepend && make depend && make && make install
 \end{figure*}
 
 \section{Kernelデバッグ開始}
+\subsection{Kernelイメージの複製とパイプ生成}
+\ref{fig:FreeBSD_CREATE}で作成したストレージのイメージをコピーする。
+GUEST1をGUEST2とORGにコピーしたとして話を進める。
+なお、ORGはストレージイメージが壊れた時のバックアップ用である。
+実際、FreeBSDをシャットダウンせずにQEMUを終了すると、次回起動できなくなる場合があった。
+
+次に仮想マシン２つをつなぐためのパイプの作成を行う。
+\ref{fig:FreeBSD_pipe}を実行する。
+\begin{figure*}[htbp]
+	\begin{center}
+		\begin{lstlisting}[basicstyle=\ttfamily\footnotesize, frame=single, breaklines=true]
+$ mkfifo /tmp/fifoA.in /tmp/fifoA.out
+$ ln -s /tmp/fifoA.out /tmp/fifoB.in
+$ ln -s /tmp/fifoA.in /tmp/fifoB.out
+		\end{lstlisting}
+	\end{center}
+	\caption{仮想マシンを接続するパイプ作成}
+	\label{fig:FreeBSD_pipe}
+\end{figure*}
+
+\subsection{GUEST1設定}
+次に\ref{fig:FreeBSD_guest1}のようにしてGUEST1を起動する。
+\begin{figure*}[htbp]
+	\begin{center}
+		\begin{lstlisting}[basicstyle=\ttfamily\footnotesize, frame=single, breaklines=true]
+$ qemu-system-x86_64 -enable-kvm -hda GUEST1 -bios OVMF.fd -m 1024M -smp 2 -serial pipe:/tmp/fifoA
+		\end{lstlisting}
+	\end{center}
+	\caption{GUEST1起動1}
+	\label{fig:FreeBSD_guest1}
+\end{figure*}
+
+起動して\ref{fig:FreeBSD_CNTDN}のように、ブートへのカウントダウンが始まると
+エンター以外の例えばスペースなどのキーを押下する。
+そうすると``OK''と表示されたプロンプト(OKプロンプト)が表示される。
+
+ここに\ref{fig:FreeBSD_OK}のように``boot -dg''とタイプしてエンターキーを押下する。
+\begin{figure*}[htbp]
+	\begin{center}
+    	\includegraphics[width=10cm]{./IMG/FreeBSD_CNTDN.png}
+	\end{center}
+    \caption{起動カウントダウン}
+    \label{fig:FreeBSD_CNTDN}
+\end{figure*}
+\begin{figure*}[htbp]
+	\begin{center}
+    	\includegraphics[width=10cm]{./IMG/FreeBSD_OK.png}
+	\end{center}
+    \caption{OKプロンプトでの入力}
+    \label{fig:FreeBSD_OK}
+\end{figure*}
+少し文字が出たあと止まってしまうが正常である。
+以上でGUEST1の設定は終了する。
+
+\subsection{GUEST2設定}
+\ref{fig:FreeBSD_guest2}のようにしてGUEST2を起動する。
+\begin{figure*}[htbp]
+	\begin{center}
+		\begin{lstlisting}[basicstyle=\ttfamily\footnotesize, frame=single, breaklines=true]
+$ qemu-system-x86_64 -enable-kvm -hda GUEST2 -bios OVMF.fd -m 1024M -smp 2 -serial pipe:/tmp/fifoB
+		\end{lstlisting}
+	\end{center}
+	\caption{GUEST2起動}
+	\label{fig:FreeBSD_guest2}
+\end{figure*}
+
+こちらは通常に起動させてる。
+そうして\ref{sec:Kern_build}でKernelをコンパイルしたパス(``/sys/amd64/compile/GENERIC'')に移動します。
+このパスで\ref{fig:FreeBSD_gdb}のように入力する。
+\begin{figure*}[htbp]
+	\begin{center}
+		\begin{lstlisting}[basicstyle=\ttfamily\footnotesize, frame=single, breaklines=true]
+$ kgdb kernel.debug
+		\end{lstlisting}
+	\end{center}
+	\caption{Kernelデバッガ起動}
+	\label{fig:FreeBSD_gdb}
+\end{figure*}
+
+KGDが起動するので最初に\ref{fig:FreeBSD_gdb_cuau0}と入力する。
+以上でGUEST1とGUEST2が接続され、KGDBによるデバッグが可能になる。
+\begin{figure*}[htbp]
+	\begin{center}
+		\begin{lstlisting}[basicstyle=\ttfamily\footnotesize, frame=single, breaklines=true]
+$ (kgdb) target remote /dev/cuau0
+		\end{lstlisting}
+	\end{center}
+	\caption{GUEST1とGUEST2の接続}
+	\label{fig:FreeBSD_gdb_cuau0}
+\end{figure*}
+
+\section{Kernelデバッグのテクニック}
+\subsection{CPUレジスタを確認する}
+Kernelデバッグ時にCPUレジスタの中身を確認したくなるシーンは多々ありるが、
+KGDBではすべてのレジスタは見れません。
+そこでQEMUから見る方法を紹介する。
+\ref{fig:FreeBSD_guest1}を\ref{fig:FreeBSD_guest2}に書き換えること。
+\begin{figure*}[htbp]
+	\begin{center}
+		\begin{lstlisting}[basicstyle=\ttfamily\footnotesize, frame=single, breaklines=true]
+$ qemu-system-x86_64 -enable-kvm -hda GUEST1 -bios OVMF.fd -m 1024M -smp 2 -serial pipe:/tmp/fifoA -monitor stdio
+		\end{lstlisting}
+	\end{center}
+	\caption{GUEST1起動2}
+	\label{fig:FreeBSD_guest2}
+\end{figure*}
+そして、QEMUを起動したターミナルから\ref{fig:QEMU_reg_chk}と入力する。
+\begin{figure*}[htbp]
+	\begin{center}
+		\begin{lstlisting}[basicstyle=\ttfamily\footnotesize, frame=single, breaklines=true]
+(qemu) info registers
+		\end{lstlisting}
+	\end{center}
+	\caption{(QEMU)プロンプトでの入力}
+	\label{fig:QEMU_reg_chk}
+\end{figure*}
+
+\ref{fig:QEMU_REG_INFO}のようにレジスタ一覧が出れば成功である。
+\begin{figure*}[htbp]
+	\begin{center}
+    	\includegraphics[width=10cm]{./IMG/QEMU_INFO_REGISTERS.png}
+	\end{center}
+    \caption{レジスタ一覧の例}
+    \label{fig:QEMU_REG_INFO}
+\end{figure*}
 
 \newpage
 \end{multicols}
