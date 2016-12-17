@@ -2,10 +2,15 @@
 
 %% 使用するパッケージ
 \usepackage{listings}
-\usepackage[]{graphicx}
-\usepackage[dvipdfmx]{color}
+\usepackage[dvipdfmx]{graphicx,color}
 \usepackage{amssymb}
 \usepackage{url}
+\usepackage[dvipdfmx]{hyperref}
+\usepackage{pxjahyper}
+\hypersetup{
+	colorlinks=true,
+	hidelinks=true,
+}
 \西暦
 
 %% 表紙
@@ -23,9 +28,12 @@
 \section{初めに}
 本冊子では仮想マシン2台を使用したC言語によるFreeBSD Kernelのデバッグ方法を示す。
 
-マシンのBootには従来のBIOS方式と新しいUEFI方式があるが、
+マシンのBootには従来のBIOS\footnote{Basic Input/Output System}方式と
+新しいUEFI\footnote{Unified Extensible Firmware Interface}方式があるが、
 近年のマシンはほとんどUEFIを採用しているため、
 本冊子ではUEFIにてBootする。
+本小冊子ではUEFIとBIOSの解説は行わないので、
+興味のある者は別途調べて欲しい。
 
 なお、UEFIによるBootプログラムとKernelのごく先頭部分はデバッグできない。
 これはBIOSを使用しても同様である。
