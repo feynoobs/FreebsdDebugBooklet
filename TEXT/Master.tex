@@ -55,8 +55,7 @@
 
 マシンのBootには従来のBIOS\footnote{Basic Input/Output System}方式と
 新しいUEFI\footnote{Unified Extensible Firmware Interface}方式があるが、
-近年のマシンはほとんどUEFIを採用しているため、
-本冊子ではUEFIにてBootする。
+近年のマシンはほとんどUEFIを採用しているため、UEFIにてBootする。
 本小冊子ではUEFIとBIOSの解説は行わないので、
 興味のある者は別途調べて欲しい。
 
@@ -286,7 +285,7 @@ $ qemu-system-x86_64 -enable-kvm -bios OVMF.fd -hda GUEST1 -m 1024M -smp 2
 
 ログイン後3つのファイルを編集する。
 なおFreeBSDインストール完了時には``vi''と``ee''の2つのエディタが組み込まれている。
-筆者のように``vi''が苦手な者は、``ee''が直感的に使いやすいとであろう。
+筆者のように``vi''が苦手な者は、``ee''が直感的に使いやすいであろう。
 \begin{itemize}
     \item /boot/device.hints
     \item /sys/amd64/conf/GENERIC.hints
