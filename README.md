@@ -8,7 +8,3 @@ FreeBSDカーネルデバッグのための小冊子
 
 ## お願い
 誤りや提案があればissueとかぷる陸おねがいします
-
-## 連絡先
-<p.w.feeniej@gmail.com>  
-[マンセー名無しさん](https://twitter.com/phoenixwright_j)
