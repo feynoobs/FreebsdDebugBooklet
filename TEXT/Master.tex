@@ -32,6 +32,11 @@
 \usepackage{url}
 \usepackage[dvipdfmx]{hyperref}
 \usepackage{pxjahyper}
+\usepackage{chngcntr}
+\counterwithin{figure}{section}
+\renewcommand{\thefigure}{\thesection.\arabic{figure}}
+\counterwithin{table}{section}
+\renewcommand{\thetable}{\thesection.\arabic{table}}
 \hypersetup{
 	colorlinks=true,
 	hidelinks=true,
